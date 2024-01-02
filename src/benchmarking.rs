@@ -31,5 +31,14 @@ mod benchmarks {
 		assert_eq!(Something::<T>::get(), Some(101u32));
 	}
 
+	#[benchmark]
+	fn change_state() {
+		let caller: T::AccountId = whitelisted_caller();
+		#[extrinsic_call]
+		change_state(RawOrigin::Signed(caller));
+
+		assert_eq!(Something::<T>::get(), Some(true));
+	}
+
 	impl_benchmark_test_suite!(Template, crate::mock::new_test_ext(), crate::mock::Test);
 }

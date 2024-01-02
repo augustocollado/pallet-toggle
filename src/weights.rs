@@ -36,6 +36,7 @@ use core::marker::PhantomData;
 pub trait WeightInfo {
 	fn do_something_else() -> Weight;
 	fn cause_error() -> Weight;
+	fn change_state() -> Weight;
 }
 
 /// Weights for pallet_template using the Substrate node and recommended hardware.
@@ -62,6 +63,12 @@ impl<T: frame_system::Config> WeightInfo for SubstrateWeight<T> {
 			.saturating_add(T::DbWeight::get().reads(1_u64))
 			.saturating_add(T::DbWeight::get().writes(1_u64))
 	}
+
+	fn change_state() -> Weight {
+		Weight::from(1_000_000)
+			.saturating_add(T::DbWeight::get().reads(1_u64))
+			.saturating_add(T::DbWeight::get().writes(1_u64))
+	}
 }
 
 // For backwards compatibility and tests
@@ -84,6 +91,12 @@ impl WeightInfo for () {
 		//  Estimated: `1489`
 		// Minimum execution time: 6_000_000 picoseconds.
 		Weight::from_parts(6_000_000, 1489)
+			.saturating_add(RocksDbWeight::get().reads(1_u64))
+			.saturating_add(RocksDbWeight::get().writes(1_u64))
+	}
+
+	fn change_state() -> Weight {
+		Weight::from(1_000_000)
 			.saturating_add(RocksDbWeight::get().reads(1_u64))
 			.saturating_add(RocksDbWeight::get().writes(1_u64))
 	}

@@ -95,6 +95,12 @@ pub mod pallet {
 	#[pallet::getter(fn something)]
 	pub type Something<T> = StorageValue<_, u32>;
 
+
+	#[pallet::storage]
+    #[pallet::getter(fn get_state_value)]
+    pub(super) type State<T> = StorageValue<_, bool, OptionQuery>;
+
+
 	/// Events that functions in this pallet can emit.
 	///
 	/// Events are a simple means of indicating to the outside world (such as dApps, chain explorers
@@ -152,7 +158,7 @@ pub mod pallet {
 		///
 		/// It checks that the _origin_ for this call is _Signed_ and returns a dispatch
 		/// error if it isn't. Learn more about origins here: <https://docs.substrate.io/build/origins/>
-		#[pallet::call_index(0)]
+		#[pallet::call_index(1)]
 		#[pallet::weight(T::WeightInfo::do_something_else())]
 		pub fn do_something_else(origin: OriginFor<T>, something: u32) -> DispatchResult {
 			// Check that the extrinsic was signed and get the signer.
@@ -181,7 +187,7 @@ pub mod pallet {
 		/// - If no value has been set ([`Error::NoneValue`])
 		/// - If incrementing the value in storage causes an arithmetic overflow
 		///   ([`Error::StorageOverflow`])
-		#[pallet::call_index(1)]
+		#[pallet::call_index(2)]
 		#[pallet::weight(T::WeightInfo::cause_error())]
 		pub fn cause_error(origin: OriginFor<T>) -> DispatchResult {
 			let _who = ensure_signed(origin)?;
@@ -200,5 +206,24 @@ pub mod pallet {
 				},
 			}
 		}
+	
+		#[pallet::call_index(0)]
+        #[pallet::weight(T::WeightInfo::change_state())]
+        pub fn change_state(origin: OriginFor<T>) -> DispatchResult {
+
+            // 1. Validates the origin signature
+            let _who = ensure_signed(origin)?;
+
+            // 2. Switch state
+            if let Some(state) = Self::get_state_value() {
+                let new_state = !state;    
+                State::<T>::set(Some(new_state));
+            }
+            else {
+                State::<T>::set(Some(true));
+            }
+            
+            Ok(())
+        }
 	}
 }
