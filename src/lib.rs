@@ -187,23 +187,6 @@ pub mod pallet {
 		/// - If no value has been set ([`Error::NoneValue`])
 		/// - If incrementing the value in storage causes an arithmetic overflow
 		///   ([`Error::StorageOverflow`])
-		pub fn cause_error(origin: OriginFor<T>) -> DispatchResult {
-			let _who = ensure_signed(origin)?;
-
-			// Read a value from storage.
-			match Pallet::<T>::something() {
-				// Return an error if the value has not been set.
-				None => Err(Error::<T>::NoneValue.into()),
-				Some(old) => {
-					// Increment the value read from storage. This will cause an error in the event
-					// of overflow.
-					let new = old.checked_add(1).ok_or(Error::<T>::StorageOverflow)?;
-					// Update the value in storage with the incremented result.
-					Something::<T>::put(new);
-					Ok(())
-				},
-			}
-		}
 	
 		#[pallet::call_index(0)]
         #[pallet::weight(T::WeightInfo::change_state())]
