@@ -187,8 +187,6 @@ pub mod pallet {
 		/// - If no value has been set ([`Error::NoneValue`])
 		/// - If incrementing the value in storage causes an arithmetic overflow
 		///   ([`Error::StorageOverflow`])
-		#[pallet::call_index(2)]
-		#[pallet::weight(T::WeightInfo::cause_error())]
 		pub fn cause_error(origin: OriginFor<T>) -> DispatchResult {
 			let _who = ensure_signed(origin)?;
 
