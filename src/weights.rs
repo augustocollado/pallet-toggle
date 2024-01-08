@@ -65,7 +65,7 @@ impl<T: frame_system::Config> WeightInfo for SubstrateWeight<T> {
 	}
 
 	fn change_state() -> Weight {
-		Weight::from(1_000_000)
+		Weight::from_all(1_000_000)
 			.saturating_add(T::DbWeight::get().reads(1_u64))
 			.saturating_add(T::DbWeight::get().writes(1_u64))
 	}
