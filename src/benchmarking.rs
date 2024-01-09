@@ -1,35 +1,15 @@
-//! Benchmarking setup for pallet-template
+//! Benchmarking setup for pallet-toggle
 #![cfg(feature = "runtime-benchmarks")]
 use super::*;
 
 #[allow(unused)]
-use crate::Pallet as Template;
+use crate::Pallet as Toggle;
 use frame_benchmarking::v2::*;
 use frame_system::RawOrigin;
 
 #[benchmarks]
 mod benchmarks {
 	use super::*;
-
-	#[benchmark]
-	fn do_something_else() {
-		let value = 100u32.into();
-		let caller: T::AccountId = whitelisted_caller();
-		#[extrinsic_call]
-		do_something_else(RawOrigin::Signed(caller), value);
-
-		assert_eq!(Something::<T>::get(), Some(value));
-	}
-
-	#[benchmark]
-	fn cause_error() {
-		Something::<T>::put(100u32);
-		let caller: T::AccountId = whitelisted_caller();
-		#[extrinsic_call]
-		cause_error(RawOrigin::Signed(caller));
-
-		assert_eq!(Something::<T>::get(), Some(101u32));
-	}
 
 	#[benchmark]
 	fn change_state() {
@@ -40,5 +20,5 @@ mod benchmarks {
 		assert_eq!(Something::<T>::get(), Some(true));
 	}
 
-	impl_benchmark_test_suite!(Template, crate::mock::new_test_ext(), crate::mock::Test);
+	impl_benchmark_test_suite!(Toggle, crate::mock::new_test_ext(), crate::mock::Test);
 }

@@ -1,9 +1,9 @@
 [package]
-name = "pallet-template"
+name = "pallet-toggle"
 version = "4.0.0-dev"
-description = "FRAME pallet template for defining custom runtime logic."
-authors = ["Substrate DevHub <https://github.com/substrate-developer-hub>"]
-homepage = "https://substrate.io"
+description = "An example of a FRAME pallet that toggles a state."
+authors = ["Papermooon"]
+homepage = "https://papermoon.io"
 edition = "2021"
 license = "MIT-0"
 publish = false

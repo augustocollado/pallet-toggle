@@ -1,40 +1,15 @@
-//! # Template Pallet
+//! # Toggle Pallet
 //!
-//! A pallet with minimal functionality to help developers understand the essential components of
-//! writing a FRAME pallet. It is typically used in beginner tutorials or in Substrate template
-//! nodes as a starting point for creating a new pallet and **not meant to be used in production**.
+//! A pallet with minimal functionality to be used as example and in tutorials or documentation
+//! **not meant to be used in production**.
 //!
 //! ## Overview
 //!
-//! This template pallet contains basic examples of:
-//! - declaring a storage item that stores a single `u32` value
+//! This toggle pallet contains a basic logic that represents an on/off switch:
+//! - declaring a storage item
 //! - declaring and using events
 //! - declaring and using errors
-//! - a dispatchable function that allows a user to set a new value to storage and emits an event
-//!   upon success
-//! - another dispatchable function that causes a custom error to be thrown
-//!
-//! Each pallet section is annotated with an attribute using the `#[pallet::...]` procedural macro.
-//! This macro generates the necessary code for a pallet to be aggregated into a FRAME runtime.
-//!
-//! Learn more about FRAME macros [here](https://docs.substrate.io/reference/frame-macros/).
-//!
-//! ### Pallet Sections
-//!
-//! The pallet sections in this template are:
-//!
-//! - A **configuration trait** that defines the types and parameters which the pallet depends on
-//!   (denoted by the `#[pallet::config]` attribute). See: [`Config`].
-//! - A **means to store pallet-specific data** (denoted by the `#[pallet::storage]` attribute).
-//!   See: [`storage_types`].
-//! - A **declaration of the events** this pallet emits (denoted by the `#[pallet::event]`
-//!   attribute). See: [`Event`].
-//! - A **declaration of the errors** that this pallet can throw (denoted by the `#[pallet::error]`
-//!   attribute). See: [`Error`].
-//! - A **set of dispatchable functions** that define the pallet's functionality (denoted by the
-//!   `#[pallet::call]` attribute). See: [`dispatchables`].
-//!
-//! Run `cargo doc --package pallet-template --open` to view this pallet's documentation.
+//! - a dispatchable function that allows a user to switch the state
 
 // We make sure this pallet uses `no_std` for compiling to Wasm.
 #![cfg_attr(not(feature = "std"), no_std)]
@@ -86,16 +61,6 @@ pub mod pallet {
 		type WeightInfo: WeightInfo;
 	}
 
-	/// A storage item for this pallet.
-	///
-	/// In this template, we are declaring a storage item called `Something` that stores a single
-	/// `u32` value. Learn more about runtime storage here: <https://docs.substrate.io/build/runtime-storage/>
-	/// The [`getter`] macro generates a function to conveniently retrieve the value from storage.
-	#[pallet::storage]
-	#[pallet::getter(fn something)]
-	pub type Something<T> = StorageValue<_, u32>;
-
-
 	#[pallet::storage]
     #[pallet::getter(fn get_state_value)]
     pub(super) type State<T> = StorageValue<_, bool, OptionQuery>;
@@ -114,29 +79,13 @@ pub mod pallet {
 	#[pallet::event]
 	#[pallet::generate_deposit(pub(super) fn deposit_event)]
 	pub enum Event<T: Config> {
-		/// A user has successfully set a new value.
-		SomethingStored {
+		/// A user has successfully switched the state.
+		StateSwitched {
 			/// The new value set.
-			something: u32,
+			state: bool,
 			/// The account who set the new value.
 			who: T::AccountId,
 		},
-	}
-
-	/// Errors that can be returned by this pallet.
-	///
-	/// Errors tell users that something went wrong so it's important that their naming is
-	/// informative. Similar to events, error documentation is added to a node's metadata so it's
-	/// equally important that they have helpful documentation associated with them.
-	///
-	/// This type of runtime error can be up to 4 bytes in size should you want to return additional
-	/// information.
-	#[pallet::error]
-	pub enum Error<T> {
-		/// The value retrieved was `None` as no value was previously set.
-		NoneValue,
-		/// There was an attempt to increment the value in storage over `u32::MAX`.
-		StorageOverflow,
 	}
 
 	/// The pallet's dispatchable functions ([`Call`]s).
@@ -153,26 +102,6 @@ pub mod pallet {
 	/// The [`weight`] macro is used to assign a weight to each call.
 	#[pallet::call]
 	impl<T: Config> Pallet<T> {
-		/// An example dispatchable that takes a single u32 value as a parameter, writes the value
-		/// to storage and emits an event.
-		///
-		/// It checks that the _origin_ for this call is _Signed_ and returns a dispatch
-		/// error if it isn't. Learn more about origins here: <https://docs.substrate.io/build/origins/>
-		#[pallet::call_index(1)]
-		#[pallet::weight(T::WeightInfo::do_something_else())]
-		pub fn do_something_else(origin: OriginFor<T>, something: u32) -> DispatchResult {
-			// Check that the extrinsic was signed and get the signer.
-			let who = ensure_signed(origin)?;
-
-			// Update storage.
-			Something::<T>::put(something);
-
-			// Emit an event.
-			Self::deposit_event(Event::SomethingStored { something, who });
-
-			// Return a successful `DispatchResult`
-			Ok(())
-		}
 
 		/// An example dispatchable that may throw a custom error.
 		///
@@ -196,14 +125,13 @@ pub mod pallet {
             let _who = ensure_signed(origin)?;
 
             // 2. Switch state
+			let mut new_state = true;
             if let Some(state) = Self::get_state_value() {
-                let new_state = !state;    
-                State::<T>::set(Some(new_state));
+                new_state = !state;
             }
-            else {
-                State::<T>::set(Some(true));
-            }
-            
+			State::<T>::set(Some(new_state));
+			Self::deposit_event(Event::StateSwitched { state: new_state, who: _who });
+			
             Ok(())
         }
 	}
